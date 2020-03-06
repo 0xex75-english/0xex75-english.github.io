@@ -1,10 +1,10 @@
 ---
-title: "À PROPOS"
-permalink: "/propos/"
+title: "ABOUT"
+permalink: "/about/"
 ---
 
-Passfionné d'informatique, plus précisement de la sécurité informatique, polyvalent, ainsi adore faire de la programmation en Python ainsi en C en particulier ainsi également aime faire du CISCO sur des platformes comme Cisco Packet Tracer. <br />
+Passionate about computers, more precise in computer security, versatile, likes to program in Python and in C in particular so likes to do CISCO on platforms like Cisco Packet Tracer. <br />
 
-Sur ce site, je vous proposerai le partage de mes write-ups, d’analyses ainsi également mes connaissances. N'hésitez pas à me contacter sur [Twitter](https://twitter.com/Seyptoo) ou bien sur mon Discord.
+On this site, I offered to share my articles, analyzes and my knowledge. Do not hesitate to contact me on [Twitter](https://twitter.com/Seyptoo) or on my Discord.
 
 ![Flower](test.gif)
