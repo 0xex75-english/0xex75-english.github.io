@@ -29,7 +29,7 @@
       {% if path.first %}
         <a href="/">ACCUEIL</a>
         <a href="/propos/">A PROPOS</a>
-        <a href="/archive/">ARCHIVE</a>
+        <a href="/FRENCH/">FRENCH</a>
       {% else %}
         {% assign node = site.pages | where: "name", path | first %}<a href="{{ node.url | relative_url }}">{{ node.title }}</a>
       {% endif %}
