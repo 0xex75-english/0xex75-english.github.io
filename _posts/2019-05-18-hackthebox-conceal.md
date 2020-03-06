@@ -11,13 +11,11 @@ Informations
     Ip :  10.10.10.116  Created by : bashlogic
     Level : Hard        Base Points : 40
 
-Résumé : <br />
-
 The Conceal system, available on the platform [HackTheBox](https://www.hackthebox.eu/), was very interesting and fun. The level of difficulty was rather high, given that a good enumeration was more than enough. In addition, I have learned a lot of choice throughout the exploitation of the flaws in this system.
 
 - There is a Simple Network Manager Protocol (SNMP) port that is open, and it has been publicly released, and we find a PSK address. <br />
 - Next, we will crack the preshared key (PSK) used during the authentication phase to a Virtual Private Network (VPN) using IPsec. <br />
-- A good configuration to have access, with the IPSEC protocol with the StrongSwan program. <br />
+- You need a good configuration to reach the remote server using the StrongSwan program (IPSEC). <br />
 - We need to create a routing point with IPSEC to redirect the ports and access the machine. <br />
 - You can upload files to FTP, and then run the script on the web page and make a reverse shell. <br />
 - For administrator access, SeImpersonatePrivilege is enabled so on can use the JuicyPotato program.
