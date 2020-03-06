@@ -49,7 +49,7 @@ To scan the ports using the User Datagram Protocol (UDP), we will use the massca
     Scanning 1 hosts [131070 ports/host]
     Discovered open port 161/udp on 10.10.10.116                                   
 
-From the scan we just did, we can see that the port 161 port using the User Datagram Protocol (UDP) is open. This port is most often used by the Simple Network Management Portocole (SNMP) service. This protocol is mainly used by network administrators to obtain information about the system or to make modifications.
+From the scan we just did, using User Datagram Protocol (UDP). We can see that the port 161 is open. This port is most often used by the Simple Network Management Portocole (SNMP) service. This protocol is mainly used by network administrators to obtain information about the system or to make modifications.
 
     root@Seyptoo:~/htb/box/Conceal# nmap -sU -sC -sV -p161 10.10.10.116
 
