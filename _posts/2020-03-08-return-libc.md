@@ -1,5 +1,5 @@
 ---
-title: "Return to libc"
+title: "The technique return to libc"
 description: sam.png
 tags: ["In this article I present to you how to exploit a vulnerability to bypass the NX system with the technique of return to libc."]
 ---
