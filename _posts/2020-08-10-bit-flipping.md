@@ -21,7 +21,7 @@ If your message that you want to encrypt is "hello", every time you encrypt the 
 The system is simple, the `CBC` encryption works by block, i.e. for a block to be` XORED`, it needs the previous block to be `XORED`.
 
     C¹ = E(P¹ ⊕ IV)
-    Cⁿ = E(Pⁿ ⊕ Cⁿ - 1) — si n > 1
+    Cⁿ = E(Pⁿ ⊕ Cⁿ - 1) — for all n > 1
 
 You will ask me the question, how can the first value of the block be encrypted, if it has no precedent?
 This is where the `IV` system (Initialization vector) comes into play, it randomizes a random data so that it is XORED with the first block and so on until the last block, the formula below above summarizes the purpose.
