@@ -85,7 +85,7 @@ So we're on a problem, there's an unintelligible question mark, we need to find 
     $ hex(0x30 ^ 0x14)
     '0x24'
     
-Perfect, we are root, 6bc24fc1`a`650b`24`b4114e93a98f1eba.
+Perfect, we are root, 6bc24fc1`aa`650b`24`b4114e93a98f1eba.
 
 ![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/root.PNG?raw=true)
 
