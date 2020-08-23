@@ -1,6 +1,6 @@
 ---
-title: "Attaque par bit flipping"
-description: sam.png
+title: "Bit flipping attack"
+description: test.png
 tags: ["Here we will explain what is behind the concept of bit flipping. A bit-flipping attack is an attack on a cryptographic cipher in which the attacker can modify the ciphertext in such a way as to cause a predictable change in the plaintext, although the attacker is not able to learn the text. in clear itself"]
 ---
 
