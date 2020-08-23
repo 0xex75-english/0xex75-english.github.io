@@ -1,65 +1,64 @@
 ---
 title: "Attaque par bit flipping"
 description: sam.png
-tags: ["Nous allons ici expliquer ce qui se cache derrière la notion de bit flipping. Une attaque par retournement de bits est une attaque sur un chiffrement cryptographique dans laquelle l'attaquant peut modifier le texte chiffré de manière à entraîner un changement prévisible du texte en clair, bien que l'attaquant ne soit pas en mesure d'apprendre le texte en clair lui-même.
-"]
+tags: ["Here we will explain what is behind the concept of bit flipping. A bit-flipping attack is an attack on a cryptographic cipher in which the attacker can modify the ciphertext in such a way as to cause a predictable change in the plaintext, although the attacker is not able to learn the text. in clear itself"]
 ---
 
-Nous allons ici expliquer ce qui se cache derrière la notion de bit flipping. Une attaque par retournement de bits est une attaque sur un chiffrement cryptographique dans laquelle l'attaquant peut modifier le texte chiffré de manière à entraîner un changement prévisible du texte en clair, bien que l'attaquant ne soit pas en mesure d'apprendre le texte en clair lui-même.
+Here we will explain what is behind the concept of bit flipping. A bit-flipping attack is an attack on a cryptographic cipher in which the attacker can modify the ciphertext in such a way as to cause a predictable change of the plaintext, although the attacker is not able to learn the text. in the clear itself.
 
-J'étais confontré à un retournement de bits sur HTB dans la boxe Lazy, sur une vulnérabilité de type `Padding Oracle` et j'ai réussi à m'introduire dans le compte administrateur en changement seulement les bits du `Cookie`, vous comprendrez mieux par la suite.
+I was confronted with a bit flipping on HTB in Lazy boxing, on a vulnerability of type `Padding Oracle` and I managed to get into the administrator account by changing only the bits of the` Cookie`, you will understand better afterwards.
 
-# Théorie
+# Theory
 
-Chaque fois que vous vous connectez sur un `site web`, le serveur vous donnent un `Cookie`, pour la simple et bonne raison que cela permet tout simplement de maintenir une session entre le client et le serveur, si une personne récupère vos cookies, il serait capable de se connecter à votre compte sans mettre les identifiants d'identifications, c'est pour cela que la sécurité est important !
+Each time you connect to a `website`, the server will give you a` Cookie`, for the simple reason that this simply allows a session to be maintained between the client and the server, if someone collects your cookies. , he would be able to connect to your account without putting the identifiers, that's why security is important!
 
-# Fonctionnement du CBC
+# How the CBC works?
 
-Si votre message que vous souhaitez chiffrer est « hello », chaque fois que vous chiffrez le mot «hello», il en résultera toujours la même sortie chiffrée. Cela pose un risque de sécurité grave car un attaquant peut procéder à une attaque en chiffrant simplement une liste de mots, puis en les comparant aux valeurs chiffrées, révélant ainsi le jeton. L'attaquant peut alors créer son propre token, le crypter et l'utiliser pour se connecter en tant qu'autre utilisateur. CBC est un moyen de randomiser la sortie de la valeur chiffrée.
+If your message that you want to encrypt is "hello", every time you encrypt the word "hello" it will always result in the same encrypted output. This poses a serious security risk because an attacker can carry out an attack by simply encrypting a list of words and then comparing them to the encrypted values, thereby revealing the token. The attacker can then create his own token, encrypt it and use it to log in as another user. CBC is a way to randomize the output of the encrypted value.
 
 ![forthebadge made-with-python](https://www.researchgate.net/profile/Mousa_Farajallah/publication/308826472/figure/fig1/AS:391837119467524@1470432657367/AES-encryption-system-in-CFB-mode.png)
 
-Le système est simple, le chiffrement `CBC` fonctionne par bloc, c'est-à-dire que pour qu'un bloc soit `XORED`, il a besoin du bloc précédent pour qu'il soit `XORED`.
+The system is simple, the `CBC` encryption works by block, i.e. for a block to be` XORED`, it needs the previous block to be `XORED`.
 
     C¹ = E(P¹ ⊕ IV)
     Cⁿ = E(Pⁿ ⊕ Cⁿ - 1) — si n > 1
 
-Vous me poserez la question, comment la première valeur du bloc peut être chiffré, si il n'a pas de précédent ?
-C'est là que le système `IV` (Initialization vector ou Vecteur d'initialisation) rentre en jeu, il randomise une donnée aléatoire pour que il soit XORED avec le premier bloc et ainsi de suite jusqu'au dernier bloc, la formule ci-dessus résume la finalité.
+You will ask me the question, how can the first value of the block be encrypted, if it has no precedent?
+This is where the `IV` system (Initialization vector) comes into play, it randomizes a random data so that it is XORED with the first block and so on until the last block, the formula below above summarizes the purpose.
 
-Donc, l'attaque est relativement simple, supposons que nous avons un utilisateur qui se nomme `admin` et le chiffrement du `Cookie` est `21232f297a57a5a743894a0e4a801fc3`, notre but concrètement est de changer la valeur `admin` en changeant seulement les bits du `Cookie`, par exemple `vb232f297a57a5a743894a0e4a801fc3` qui deviendra `bdmin`, l'idée est là, c'est de changer le comportement du `Cookie` et de lui afficher quelque chose d'autre pour accéder à un compte.
+So the attack is relatively simple, suppose we have a user named `admin` and the encryption of the` Cookie` is `21232f297a57a5a743894a0e4a801fc3`, our concrete goal is to change the` admin` value by changing only the bits of the `Cookie`, for example` vb232f297a57a5a743894a0e4a801fc3` which will become `bdmin`, the idea is there, it is to change the behavior of the` Cookie` and show it something else to access an account.
 
-# Pratique
+# Convenient
 
-Dans mon cas, j'utiliserai un serveur `XAMPP` et d'installer `Mullitidae`, Mullitidae est un environnement de `pentest`, n'hésitez pas à l'[installer](https://www.owasp.org/index.php/OWASP_Mutillidae_2_Project) pour faire des testes intéréssants. Démarrons simplement le service `APACHE` et `MYSQL`
+In my case, I will use a `XAMPP` server and install` Mullitidae`, Mullitidae is a `pentest` environment, feel free to [install] it (https://www.owasp.org/index.php/OWASP_Mutillidae_2_Project) to make interesting tests. Let's just start the `APACHE` and` MYSQL` service.
 
 ![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/Capture.PNG?raw=true)
 
-Dans la version 2.6.10 de Mutilidae, il existe une page appelée Niveau de privilège utilisateur. Ceci est conçu pour pratiquer l'attaque de retournement de bits CBC. Il se trouve sous: OWASP 2013, Authentification interrompue et gestion de session, Échelle de privilèges, afficher les privilèges des utilisateurs. 
+In version 2.6.10 of Mutilidae, there is a page called User Privilege Level. This is designed to practice the CBC bit flipping attack. You can find it under: OWASP 2013, Broken Authentication and Session Management, Privilege Scale, View User Privileges.
 
-Comme vous pouvez le voir, le but de ce défi est de changer l'utilisateur et le groupe en `000`. La première chose dont nous avons besoin est l'`IV`. Nous devons utiliser un proxy qui se situe entre nous et le serveur pour intercepter la communation entre le `client` et le `serveur`. J'utiliserai `BurpSuite` pour cela. `BurpSuite` est un outil utilisé pour aider au pentesting d'applications Web. vous devez configurer votre navigateur pour passer par le proxy Burp. La configuration du `BurpSuite` est hors de portée pour ce poste.
+As you can see, the goal of this challenge is to change user and group to `000`. The first thing we need is the 'IV'. We need to use a proxy that sits between us and the server to intercept the communication between the `client` and the` server`. I will use `BurpSuite` for this. `BurpSuite` is a tool used to assist in the pentesting of web applications. you need to configure your browser to go through the Burp proxy. The configuration of the `BurpSuite` is out of scope for this station.
 
 ![forthebadge made-with-python](https://raw.githubusercontent.com/0xEX75/0xEX75.github.io/master/000.PNG)
 
-Ensuite, interceptons la communication entre le client et serveur pour falsifier la communication entre le client et le serveur à l'aide de `BurpSuite`. 
+Next, let's intercept the communication between client and server to tamper with the communication between client and server using `BurpSuite`.
 
-Si nous modifions les deux premières valeurs par `FFc24fc1ab650b25b4114e93a98f1eba`, nous aurons une chose inintellegible en sortie, ce qui prouve que nous avons le pouvoir sur le `Cookie`.
+If we change the first two values ​​to `FFc24fc1ab650b25b4114e93a98f1eba`, we will have an unintelligible thing output, which proves that we have power over the` Cookie`.
 
 ![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/valeur.PNG)
 
-FFFF4fc1ab650b25b4114e93a98f1eba
-FFFFFFc1ab650b25b4114e93a98f1eba
-FFFFFFFFab650b25b4114e93a98f1eba
-FFFFFFFFFF650b25b4114e93a98f1eba
-FFFFFFFFFFFFFFFFb4114e93a98f1eba
+    FFFF4fc1ab650b25b4114e93a98f1eba
+    FFFFFFc1ab650b25b4114e93a98f1eba
+    FFFFFFFFab650b25b4114e93a98f1eba
+    FFFFFFFFFF650b25b4114e93a98f1eba
+    FFFFFFFFFFFFFFFFb4114e93a98f1eba
+    
+If we change so on, we will have completely bypassed the standard output of the system. Ok, so we know the bit we need to change to change the part of the User ID field. Note this as we will need it later. Keep flipping the bits until you get to the part of the group ID that needs to be changed.
 
-Si nous modifions ainsi de suite, nous aurons totalement débordé la sortie standard du système. Ok, donc nous savons le bit que nous devons modifier pour changer la partie du champ ID utilisateur. Notez ceci car nous en aurons besoin plus tard. Continuez à retourner les bits jusqu'à ce que vous arriviez à la partie de l'ID de groupe qui doit être modifiée.
-
-Donc les bits à modifiers sont `6bc24fc1 FF 650b FF b4114e93a98f1eba`, cela nous donnera en sortie :
+So the bits to modify are `6bc24fc1 FF 650b FF b4114e93a98f1eba`, this will give us the output:
 
 ![forthebadge made-with-python](https://raw.githubusercontent.com/0xEX75/0xEX75.github.io/master/0e.PNG)
 
-Nous avons donc trouvé les bits que nous devons modifier pour modifier les parties correctes de l'ID d'utilisateur et de groupe. L'étape suivante consiste à les modifier de manière à les renvoyer sous forme de zéro. Nous voyons que l'ID de utilisateur que nous avons envoyé `FF` a renvoyé « e ». Le FF que nous avons envoyé était une valeur hexadécimale et le « e » est un littéral donc le «e» doit être converti en HEX. Utilisez `Python` pour décoder « e » en HEX renvoie `65`. Maintenant, nous XORons `FF` avec `65`.
+So we found the bits we need to change to change the correct parts of the user and group ID. The next step is to modify them so that they return them as zero. We see that the user ID we sent to `FF` returned" e ". The FF we sent was a hex value and the "e" is a literal so the "e" needs to be converted to HEX. Use `Python` to decode" e "in HEX returns` 65`. Now we XORate `FF` with` 65`.
 
     $ import binascii
     $ binascii.hexlify(b'e')
@@ -67,16 +66,16 @@ Nous avons donc trouvé les bits que nous devons modifier pour modifier les part
     $ print hex(0xff ^ 0x65)
     '0x9a'
     
-La valeur XORed renvoie la valeur HEX `9a`. Pour obtenir complètement la valeur `0`, nous devons convertir `0` en `HEX` ce qui nous donnera `30` et ensuite de `XOR` cette valeur avec `9a` 
+The XORed value returns the HEX value `9a`. To get the value `0` completely, we need to convert` 0` to `HEX` which will give us` 30` and then `XOR` that value with` 9a`
 
     $ hex(0x30 ^ 0x9a)
     '0xaa'
 
-Donc maintenant le `Cookie` prend cette forme `6bc24fc1 aa 650b FF b4114e93a98f1eba`, il nous manque juste le dernier `FF`, si nous regardons à travers `BurpSuite`, nous verrons bien que le `000` est bien présent, ce qui signifie que nous sommes dans la bonne voie.
+So now the `Cookie` takes this form` 6bc24fc1 aa 650b FF b4114e93a98f1eba`, we are just missing the last `FF`, if we look through` BurpSuite`, we will see that the `000` is present, which means we are on the right track.
 
 ![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/done.PNG?raw=true)
 
-Donc, nous sommes sur un problème, il y a un point d'interrogation inintellegible, nous devons trouver une valeur qui peut être lisible, donc essayons par exemple `31` cela nous renvoie un pourcentage, donc il nous reste plus que à convertir `%` en HEX ce qui nous donnera `25`, ensuite de XOR `0x31` avec `0x25` (`0x14`) et enfin de `XOR` `0x30` avec `0x14`.
+So we're on a problem, there's an unintelligible question mark, we need to find a value that can be readable, so let's try for example `31` that returns us a percentage, so we just have to convert` % `in HEX which will give us` 25`, then XOR `0x31` with` 0x25` (`0x14`) and finally` XOR` `0x30` with` 0x14`.
 
     $ import binascii
     $ binascii.hexlify(b'%')
@@ -86,10 +85,10 @@ Donc, nous sommes sur un problème, il y a un point d'interrogation inintellegib
     $ hex(0x30 ^ 0x14)
     '0x24'
     
-C'est parfait, nous sommes root, 6bc24fc1`aa`650b`24`b4114e93a98f1eba.
+Perfect, we are root, 6bc24fc1`a`650b`24`b4114e93a98f1eba.
 
 ![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/root.PNG?raw=true)
 
 # Conclusion
 
-Voilà, nous arrivons enfin au bout de cet article qui, je l’espère, vous aura plus. J’ai essayer de vous expliquez le fonctionnement de la technique par bit flipping, n’hésitez pas à me contacter sur les réseaux sociaux, je suis toujours disponible pour vous répondre.
+Here we are, we finally come to the end of this article which, I hope, will have you more. I tried to explain how the bit flipping technique works, don't hesitate to contact me on social media, I am always available to answer you.
