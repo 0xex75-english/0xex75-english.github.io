@@ -44,7 +44,7 @@ Next, let's intercept the communication between client and server to tamper with
 
 If we change the first two values ​​to `FFc24fc1ab650b25b4114e93a98f1eba`, we will have an unintelligible thing output, which proves that we have power over the` Cookie`.
 
-![forthebadge made-with-python](https://github.com/0xEX75/0xEX75.github.io/blob/master/valeur.PNG)
+![forthebadge made-with-python](https://raw.githubusercontent.com/0xEX75/0xEX75.github.io/master/valeur.PNG)
 
     FFFF4fc1ab650b25b4114e93a98f1eba
     FFFFFFc1ab650b25b4114e93a98f1eba
